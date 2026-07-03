@@ -20,6 +20,10 @@
             this.setupServiceTypeToggle();
         },
 
+        // Called by the PHP-injected MandaloGMapsReady callback when Google API loads
+        // after DOM is already ready — flushes any deferred map operations.
+        _pendingMapInit: null,
+
         bindEvents: function() {
             var self = this;
 
@@ -192,17 +196,45 @@
             });
         },
 
+        // ── Map helpers ──────────────────────────────────────────────────────────
+
+        _isGoogle: function() {
+            return MandaloQuote.maps_provider === 'google';
+        },
+
         initMap: function() {
             var self = this;
-            if (self.map) {
-                self.map.remove();
-            }
 
-            // Initialize map centered on CDMX
-            self.map = L.map('mandalo-map-container').setView([19.4326, -99.1332], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(self.map);
+            if (self._isGoogle()) {
+                // Destroy previous instance if any
+                if (self.map) {
+                    self.markers.forEach(function(m) { m.setMap(null); });
+                    self.markers = [];
+                    // No formal destroy() in Google Maps JS API; just drop reference
+                    self.map = null;
+                }
+                self.map = new google.maps.Map(document.getElementById('mandalo-map-container'), {
+                    center: {lat: 19.4326, lng: -99.1332},
+                    zoom: 12,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false,
+                    styles: [
+                        {featureType: 'poi', elementType: 'labels', stylers: [{visibility: 'off'}]},
+                        {featureType: 'transit.station', stylers: [{visibility: 'simplified'}]}
+                    ]
+                });
+                self._directionsRenderer = null; // reset route renderer
+            } else {
+                // Leaflet fallback
+                if (self.map) {
+                    self.map.remove();
+                }
+                self.map = L.map('mandalo-map-container').setView([19.4326, -99.1332], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(self.map);
+            }
 
             self.markers = [];
         },
@@ -210,31 +242,28 @@
         updateMap: function(originCoords, destinationCoords) {
             var self = this;
 
-            // Show map section, then init/refresh Leaflet ONCE it is visible.
-            // Leaflet renders height 0 if L.map() runs while the container is
-            // still hidden/animating — so defer init to the slideDown callback
-            // and always invalidateSize() afterwards.
+            if (self._isGoogle()) {
+                self._updateMapGoogle(originCoords, destinationCoords);
+            } else {
+                self._updateMapLeaflet(originCoords, destinationCoords);
+            }
+        },
+
+        _updateMapLeaflet: function(originCoords, destinationCoords) {
+            var self = this;
+
             $('.mandalo-map-section').stop(true, true).slideDown(300, function() {
-                if (!self.map) {
-                    self.initMap();
-                }
+                if (!self.map) { self.initMap(); }
                 self.map.invalidateSize(true);
             });
 
-            // Initialize immediately too (safe: initMap guards against dupes)
-            if (!self.map) {
-                self.initMap();
-            }
+            if (!self.map) { self.initMap(); }
 
-            // Clear existing markers
-            self.markers.forEach(function(marker) {
-                self.map.removeLayer(marker);
-            });
+            self.markers.forEach(function(m) { self.map.removeLayer(m); });
             self.markers = [];
 
             var bounds = [];
 
-            // Add origin marker (green)
             if (originCoords && originCoords.lat) {
                 var originIcon = L.divIcon({
                     className: 'mandalo-marker-origin',
@@ -249,7 +278,6 @@
                 bounds.push([originCoords.lat, originCoords.lon]);
             }
 
-            // Add destination markers (red)
             if (destinationCoords && destinationCoords.length > 0) {
                 destinationCoords.forEach(function(coords, i) {
                     if (coords && coords.lat) {
@@ -268,7 +296,6 @@
                 });
             }
 
-            // Fit bounds if we have markers
             if (bounds.length > 0) {
                 setTimeout(function() {
                     self.map.invalidateSize();
@@ -279,6 +306,145 @@
                     }
                 }, 350);
             }
+        },
+
+        _updateMapGoogle: function(originCoords, destinationCoords) {
+            var self = this;
+
+            // Show section first, then initialize/refresh Google Map
+            $('.mandalo-map-section').stop(true, true).slideDown(300, function() {
+                if (!self.map) {
+                    self.initMap();
+                }
+                // Trigger resize so Google Map fills the newly-visible container
+                google.maps.event.trigger(self.map, 'resize');
+            });
+
+            if (!self.map) { self.initMap(); }
+
+            // Clear previous markers
+            self.markers.forEach(function(m) { m.setMap(null); });
+            self.markers = [];
+
+            // Clear previous directions renderer
+            if (self._directionsRenderer) {
+                self._directionsRenderer.setMap(null);
+                self._directionsRenderer = null;
+            }
+
+            var bounds = new google.maps.LatLngBounds();
+            var allPoints = [];
+
+            // Origin marker — green
+            if (originCoords && originCoords.lat) {
+                var originLatLng = {lat: originCoords.lat, lng: originCoords.lon};
+                var originEl = document.createElement('div');
+                originEl.className = 'mandalo-gm-label origin';
+                originEl.title = 'Recoger aqui';
+
+                var originMarker = new google.maps.marker.AdvancedMarkerElement({
+                    position: originLatLng,
+                    map: self.map,
+                    content: originEl,
+                    title: 'Recoger aqui'
+                });
+                self.markers.push(originMarker);
+                bounds.extend(originLatLng);
+                allPoints.push(originLatLng);
+            }
+
+            // Destination markers — red numbered
+            if (destinationCoords && destinationCoords.length > 0) {
+                destinationCoords.forEach(function(coords, i) {
+                    if (coords && coords.lat) {
+                        var destLatLng = {lat: coords.lat, lng: coords.lon};
+                        var destEl = document.createElement('div');
+                        destEl.className = 'mandalo-gm-label';
+                        destEl.textContent = String(i + 1);
+                        destEl.title = destinationCoords.length > 1 ? 'Parada ' + (i + 1) : 'Entregar aqui';
+
+                        var destMarker = new google.maps.marker.AdvancedMarkerElement({
+                            position: destLatLng,
+                            map: self.map,
+                            content: destEl,
+                            title: destEl.title
+                        });
+                        self.markers.push(destMarker);
+                        bounds.extend(destLatLng);
+                        allPoints.push(destLatLng);
+                    }
+                });
+            }
+
+            // Fit map to all points
+            if (allPoints.length > 1) {
+                self.map.fitBounds(bounds, 40);
+            } else if (allPoints.length === 1) {
+                self.map.setCenter(allPoints[0]);
+                self.map.setZoom(15);
+            }
+
+            // Draw route by road with DirectionsService (origin → waypoints → last dest)
+            if (originCoords && originCoords.lat && destinationCoords && destinationCoords.length > 0) {
+                self._drawGoogleRoute(originCoords, destinationCoords);
+            }
+        },
+
+        _drawGoogleRoute: function(originCoords, destinationCoords) {
+            var self = this;
+
+            var validDests = destinationCoords.filter(function(c) { return c && c.lat; });
+            if (validDests.length === 0) { return; }
+
+            var origin = new google.maps.LatLng(originCoords.lat, originCoords.lon);
+            var destination = new google.maps.LatLng(
+                validDests[validDests.length - 1].lat,
+                validDests[validDests.length - 1].lon
+            );
+
+            var waypoints = [];
+            for (var i = 0; i < validDests.length - 1; i++) {
+                waypoints.push({
+                    location: new google.maps.LatLng(validDests[i].lat, validDests[i].lon),
+                    stopover: true
+                });
+            }
+
+            var renderer = new google.maps.DirectionsRenderer({
+                suppressMarkers: true,          // keep our custom markers
+                polylineOptions: {
+                    strokeColor: '#F59E0B',      // Mandalo brand amber/yellow
+                    strokeWeight: 5,
+                    strokeOpacity: 0.85
+                }
+            });
+            renderer.setMap(self.map);
+            self._directionsRenderer = renderer;
+
+            var service = new google.maps.DirectionsService();
+            service.route({
+                origin: origin,
+                destination: destination,
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.DRIVING,
+                optimizeWaypoints: false
+            }, function(result, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    renderer.setDirections(result);
+                } else {
+                    // Fallback: draw straight polyline between all points
+                    var path = [{lat: originCoords.lat, lng: originCoords.lon}];
+                    validDests.forEach(function(c) { path.push({lat: c.lat, lng: c.lon}); });
+                    new google.maps.Polyline({
+                        path: path,
+                        geodesic: true,
+                        strokeColor: '#F59E0B',
+                        strokeWeight: 4,
+                        strokeOpacity: 0.7,
+                        map: self.map
+                    });
+                }
+            });
         },
 
         handleAddressInput: function($input) {
@@ -960,7 +1126,7 @@
         }
     };
 
-    // Fullscreen Map Module
+    // Fullscreen Map Module — supports Leaflet (fallback) and Google Maps
     var MandaloFullscreenMap = {
         map: null,
         marker: null,
@@ -973,10 +1139,13 @@
             this.bindEvents();
         },
 
+        _isGoogle: function() {
+            return MandaloQuote.maps_provider === 'google';
+        },
+
         bindEvents: function() {
             var self = this;
 
-            // Open fullscreen map when clicking map button
             $(document).on('click', '.mandalo-map-btn', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -985,17 +1154,14 @@
                 self.openMap(field, index);
             });
 
-            // Close map
             $('#mandalo-map-back').on('click', function() {
                 self.closeMap();
             });
 
-            // Confirm location
             $('#mandalo-confirm-location').on('click', function() {
                 self.confirmLocation();
             });
 
-            // Handle escape key
             $(document).on('keydown', function(e) {
                 if (e.key === 'Escape' && $('#mandalo-fullscreen-map-modal').is(':visible')) {
                     self.closeMap();
@@ -1008,26 +1174,17 @@
             self.currentField = field;
             self.currentIndex = index;
 
-            // Get current address value
-            var $input;
-            if (field === 'origin') {
-                $input = $('#origin_address');
-            } else {
-                $input = $('.mandalo-destination-row[data-index="' + index + '"] .mandalo-destination-input');
-            }
+            var $input = field === 'origin'
+                ? $('#origin_address')
+                : $('.mandalo-destination-row[data-index="' + index + '"] .mandalo-destination-input');
 
             var address = $input.val();
-            var coords = $input.data('coords');
+            var coords  = $input.data('coords');
 
-            // Update title based on field type
-            var title = field === 'origin' ? 'Ubicacion de recoleccion' : 'Ubicacion de entrega';
-            $('#mandalo-map-title').text(title);
-
-            // Show modal
+            $('#mandalo-map-title').text(field === 'origin' ? 'Ubicacion de recoleccion' : 'Ubicacion de entrega');
             $('#mandalo-fullscreen-map-modal').fadeIn(200);
             $('body').css('overflow', 'hidden');
 
-            // Initialize map after a small delay to ensure container is visible
             setTimeout(function() {
                 self.initFullscreenMap(coords, address);
             }, 100);
@@ -1037,38 +1194,144 @@
             $('#mandalo-fullscreen-map-modal').fadeOut(200);
             $('body').css('overflow', '');
 
-            // Clean up map
-            if (this.map) {
-                this.map.remove();
+            if (this._isGoogle()) {
+                // Google Maps has no destroy(); drop reference, modal hides the container
                 this.map = null;
+                this.marker = null;
+            } else {
+                if (this.map) {
+                    this.map.remove();
+                    this.map = null;
+                }
             }
         },
 
         initFullscreenMap: function(coords, address) {
             var self = this;
 
-            // Default to CDMX center
-            var lat = coords ? coords.lat : 19.4326;
-            var lng = coords ? (coords.lon || coords.lng) : -99.1332;
+            var lat  = coords ? coords.lat : 19.4326;
+            var lng  = coords ? (coords.lon || coords.lng) : -99.1332;
             var zoom = coords ? 16 : 12;
 
-            // Create map
-            self.map = L.map('mandalo-fullscreen-map', {
-                zoomControl: false
-            }).setView([lat, lng], zoom);
+            self.selectedCoords  = {lat: lat, lon: lng};
+            self.selectedAddress = address || '';
 
-            // Add zoom control to top right
-            L.control.zoom({
-                position: 'topright'
-            }).addTo(self.map);
+            if (address) {
+                $('#mandalo-selected-address .mandalo-address-text').text(address);
+            }
 
-            // Add tile layer
+            if (self._isGoogle()) {
+                self._initFullscreenGoogle(lat, lng, zoom, coords, address);
+            } else {
+                self._initFullscreenLeaflet(lat, lng, zoom, coords, address);
+            }
+        },
+
+        // ── Google Maps fullscreen ────────────────────────────────────────────
+
+        _initFullscreenGoogle: function(lat, lng, zoom, coords, address) {
+            var self = this;
+
+            self.map = new google.maps.Map(document.getElementById('mandalo-fullscreen-map'), {
+                center: {lat: lat, lng: lng},
+                zoom: zoom,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false,
+                zoomControl: true,
+                zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
+                styles: [
+                    {featureType: 'poi', elementType: 'labels', stylers: [{visibility: 'off'}]}
+                ]
+            });
+
+            // Amber teardrop marker element
+            var pickerEl = document.createElement('div');
+            pickerEl.innerHTML =
+                '<div class="mandalo-gm-picker-pulse"></div>' +
+                '<div class="mandalo-gm-picker"></div>';
+            pickerEl.style.cssText = 'position:relative;width:40px;height:40px;';
+
+            self.marker = new google.maps.marker.AdvancedMarkerElement({
+                position: {lat: lat, lng: lng},
+                map: self.map,
+                content: pickerEl,
+                gmpDraggable: true,
+                title: 'Arrastra para ajustar'
+            });
+
+            // Drag end → update coords and reverse geocode
+            self.marker.addEventListener('dragend', function() {
+                var pos = self.marker.position;
+                var mlat = typeof pos.lat === 'function' ? pos.lat() : pos.lat;
+                var mlng = typeof pos.lng === 'function' ? pos.lng() : pos.lng;
+                self.selectedCoords = {lat: mlat, lon: mlng};
+                self.reverseGeocode(mlat, mlng);
+            });
+
+            // Click on map → move marker and reverse geocode
+            self.map.addListener('click', function(e) {
+                var clat = e.latLng.lat();
+                var clng = e.latLng.lng();
+                self.marker.position = {lat: clat, lng: clng};
+                self.selectedCoords  = {lat: clat, lon: clng};
+                self.reverseGeocode(clat, clng);
+            });
+
+            // Auto geolocation if no coords provided
+            if (!coords && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var glat = position.coords.latitude;
+                    var glng = position.coords.longitude;
+                    self.map.setCenter({lat: glat, lng: glng});
+                    self.map.setZoom(16);
+                    self.marker.position = {lat: glat, lng: glng};
+                    self.selectedCoords  = {lat: glat, lon: glng};
+                    self.reverseGeocode(glat, glng);
+                }, function() { /* stay at default */ });
+            } else if (coords && !address) {
+                self.reverseGeocode(lat, lng);
+            }
+
+            self._addGoogleLocationButton();
+        },
+
+        _addGoogleLocationButton: function() {
+            var self = this;
+
+            var btn = document.createElement('div');
+            btn.className = 'mandalo-location-btn';
+            btn.innerHTML =
+                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+                '<circle cx="12" cy="12" r="10"></circle>' +
+                '<circle cx="12" cy="12" r="3" fill="currentColor"></circle>' +
+                '<line x1="12" y1="2" x2="12" y2="6"></line>' +
+                '<line x1="12" y1="18" x2="12" y2="22"></line>' +
+                '<line x1="2" y1="12" x2="6" y2="12"></line>' +
+                '<line x1="18" y1="12" x2="22" y2="12"></line>' +
+                '</svg>';
+            btn.title = 'Mi ubicacion';
+
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                self.goToCurrentLocation(btn);
+            });
+
+            self.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(btn);
+        },
+
+        // ── Leaflet fullscreen ────────────────────────────────────────────────
+
+        _initFullscreenLeaflet: function(lat, lng, zoom, coords, address) {
+            var self = this;
+
+            self.map = L.map('mandalo-fullscreen-map', { zoomControl: false }).setView([lat, lng], zoom);
+            L.control.zoom({ position: 'topright' }).addTo(self.map);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap',
                 maxZoom: 19
             }).addTo(self.map);
 
-            // Create custom draggable marker
             var markerIcon = L.divIcon({
                 className: 'mandalo-draggable-marker',
                 html: '<div style="position:relative;">' +
@@ -1079,35 +1342,20 @@
                 iconAnchor: [20, 40]
             });
 
-            self.marker = L.marker([lat, lng], {
-                icon: markerIcon,
-                draggable: true
-            }).addTo(self.map);
+            self.marker = L.marker([lat, lng], { icon: markerIcon, draggable: true }).addTo(self.map);
 
-            // Store initial coords
-            self.selectedCoords = {lat: lat, lon: lng};
-            self.selectedAddress = address || '';
-
-            // Update address display
-            if (address) {
-                $('#mandalo-selected-address .mandalo-address-text').text(address);
-            }
-
-            // Handle marker drag
             self.marker.on('dragend', function(e) {
                 var pos = e.target.getLatLng();
                 self.selectedCoords = {lat: pos.lat, lon: pos.lng};
                 self.reverseGeocode(pos.lat, pos.lng);
             });
 
-            // Handle map click to move marker
             self.map.on('click', function(e) {
                 self.marker.setLatLng(e.latlng);
                 self.selectedCoords = {lat: e.latlng.lat, lon: e.latlng.lng};
                 self.reverseGeocode(e.latlng.lat, e.latlng.lng);
             });
 
-            // If no coords, try to get current location
             if (!coords && navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     var pos = [position.coords.latitude, position.coords.longitude];
@@ -1115,17 +1363,11 @@
                     self.marker.setLatLng(pos);
                     self.selectedCoords = {lat: pos[0], lon: pos[1]};
                     self.reverseGeocode(pos[0], pos[1]);
-                }, function() {
-                    // Geolocation failed, stay at default
-                });
-            } else if (coords) {
-                // Reverse geocode current coords if no address
-                if (!address) {
-                    self.reverseGeocode(lat, lng);
-                }
+                }, function() { /* stay at default */ });
+            } else if (coords && !address) {
+                self.reverseGeocode(lat, lng);
             }
 
-            // Add current location button
             self.addLocationButton();
         },
 
@@ -1135,14 +1377,15 @@
 
             locationBtn.onAdd = function() {
                 var div = L.DomUtil.create('div', 'mandalo-location-btn');
-                div.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+                div.innerHTML =
+                    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
                     '<circle cx="12" cy="12" r="10"></circle>' +
                     '<circle cx="12" cy="12" r="3" fill="currentColor"></circle>' +
                     '<line x1="12" y1="2" x2="12" y2="6"></line>' +
                     '<line x1="12" y1="18" x2="12" y2="22"></line>' +
                     '<line x1="2" y1="12" x2="6" y2="12"></line>' +
                     '<line x1="18" y1="12" x2="22" y2="12"></line>' +
-                '</svg>';
+                    '</svg>';
                 div.title = 'Mi ubicacion';
 
                 L.DomEvent.on(div, 'click', function(e) {
@@ -1156,6 +1399,8 @@
             locationBtn.addTo(self.map);
         },
 
+        // ── Shared ────────────────────────────────────────────────────────────
+
         goToCurrentLocation: function(btn) {
             var self = this;
 
@@ -1167,13 +1412,22 @@
             $(btn).addClass('locating');
 
             navigator.geolocation.getCurrentPosition(function(position) {
-                var pos = [position.coords.latitude, position.coords.longitude];
-                self.map.setView(pos, 17);
-                self.marker.setLatLng(pos);
-                self.selectedCoords = {lat: pos[0], lon: pos[1]};
-                self.reverseGeocode(pos[0], pos[1]);
+                var glat = position.coords.latitude;
+                var glng = position.coords.longitude;
+
+                if (self._isGoogle() && self.map) {
+                    self.map.setCenter({lat: glat, lng: glng});
+                    self.map.setZoom(17);
+                    if (self.marker) { self.marker.position = {lat: glat, lng: glng}; }
+                } else if (self.map) {
+                    self.map.setView([glat, glng], 17);
+                    if (self.marker) { self.marker.setLatLng([glat, glng]); }
+                }
+
+                self.selectedCoords = {lat: glat, lon: glng};
+                self.reverseGeocode(glat, glng);
                 $(btn).removeClass('locating');
-            }, function(error) {
+            }, function() {
                 $(btn).removeClass('locating');
                 alert('No pudimos obtener tu ubicacion. Verifica los permisos de tu navegador.');
             }, {
@@ -1182,13 +1436,12 @@
             });
         },
 
+        // Nominatim reverse geocode — used by both providers
         reverseGeocode: function(lat, lng) {
             var self = this;
 
-            // Show loading
             $('#mandalo-selected-address .mandalo-address-text').text('Obteniendo direccion...');
 
-            // Use Nominatim for reverse geocoding
             $.ajax({
                 url: 'https://nominatim.openstreetmap.org/reverse',
                 data: {
@@ -1200,7 +1453,6 @@
                 },
                 success: function(data) {
                     if (data && data.display_name) {
-                        // Format address nicely
                         var addr = data.address || {};
                         var parts = [];
 
@@ -1231,25 +1483,19 @@
                 return;
             }
 
-            // Update the appropriate input field
-            var $input;
-            if (self.currentField === 'origin') {
-                $input = $('#origin_address');
-            } else {
-                $input = $('.mandalo-destination-row[data-index="' + self.currentIndex + '"] .mandalo-destination-input');
-            }
+            var $input = self.currentField === 'origin'
+                ? $('#origin_address')
+                : $('.mandalo-destination-row[data-index="' + self.currentIndex + '"] .mandalo-destination-input');
 
             $input.val(self.selectedAddress);
             $input.data('coords', self.selectedCoords);
 
-            // Store in coordinates object for form submission
             MandaloQuoteForm.coordinates[$input.attr('id') || $input.attr('name')] = {
                 lat: self.selectedCoords.lat,
                 lon: self.selectedCoords.lon,
                 address: self.selectedAddress
             };
 
-            // Close modal
             self.closeMap();
         }
     };

@@ -22,6 +22,7 @@ composer.lock
 *.log
 build.log
 backup/
+backups/
 
 # IDE
 .idea/

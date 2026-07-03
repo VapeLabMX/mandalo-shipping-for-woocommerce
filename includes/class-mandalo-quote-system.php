@@ -94,13 +94,19 @@ class Mandalo_Quote_System {
             'truck' => ['name' => 'Camioneta', 'desc' => 'Carga grande', 'icon' => 'truck-loading', 'badge' => ''],
         ];
 
+        // Determine maps provider: Google Maps if option key exists, else Leaflet fallback.
+        $gmaps_api_key = get_option('mandalo_google_maps_api_key', '');
+        $use_google_maps = !empty($gmaps_api_key);
+
         ob_start();
 
         // Output CSS link
         $css_url = MANDALO_SHIPPING_URL . 'assets/css/quote-form.css?ver=' . MANDALO_SHIPPING_VERSION;
         echo '<link data-no-optimize="1" rel="stylesheet" href="' . esc_url($css_url) . '">';
-        // Leaflet CSS for maps
-        echo '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">';
+        if (!$use_google_maps) {
+            // Leaflet CSS fallback (only when no Google Maps key configured)
+            echo '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">';
+        }
         ?>
 
         <div id="mandalo-quote-container" class="mandalo-quote-widget">
@@ -403,6 +409,7 @@ class Mandalo_Quote_System {
             'checkout_url' => wc_get_checkout_url(),
             'cart_url' => wc_get_cart_url(),
             'currency_symbol' => get_woocommerce_currency_symbol(),
+            'maps_provider' => $use_google_maps ? 'google' : 'leaflet',
             'i18n' => [
                 'calculating' => 'Calculando...',
                 'add_to_cart' => 'Contratar Servicio',
@@ -416,7 +423,23 @@ class Mandalo_Quote_System {
         $js_url = MANDALO_SHIPPING_URL . 'assets/js/quote-form.js?ver=' . MANDALO_SHIPPING_VERSION;
         ?>
         <script data-no-optimize="1">var MandaloQuote = <?php echo json_encode($js_config); ?>;</script>
+        <?php if ($use_google_maps): ?>
+        <script data-no-optimize="1">
+        /* Google Maps async loader — fires MandaloGMapsReady when API is available */
+        window.MandaloGMapsReady = function() {
+            window._mandaloGMapsLoaded = true;
+            if (typeof MandaloQuoteForm !== 'undefined' && MandaloQuoteForm._pendingMapInit) {
+                MandaloQuoteForm._pendingMapInit();
+                MandaloQuoteForm._pendingMapInit = null;
+            }
+        };
+        </script>
+        <script data-no-optimize="1" async
+            src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr($gmaps_api_key); ?>&libraries=marker&loading=async&callback=MandaloGMapsReady">
+        </script>
+        <?php else: ?>
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <?php endif; ?>
         <script data-no-optimize="1" src="<?php echo esc_url($js_url); ?>"></script>
         <?php
 
