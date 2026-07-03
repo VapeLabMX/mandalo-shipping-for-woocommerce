@@ -1,0 +1,1252 @@
+/**
+ * Mandalo Shipping - Checkout Styles v2.0
+ * Complete UI for shipping selection, multi-address, scheduling, and vehicle
+ */
+
+/* ============================================
+   BASE STYLES & VARIABLES
+   ============================================ */
+:root {
+    --mandalo-primary: #FFC107;
+    --mandalo-primary-dark: #e0a800;
+    --mandalo-primary-light: #fff3cd;
+    --mandalo-secondary: #333333;
+    --mandalo-success: #28a745;
+    --mandalo-danger: #dc3545;
+    --mandalo-info: #17a2b8;
+    --mandalo-warning: #fd7e14;
+    --mandalo-gray-100: #f8f9fa;
+    --mandalo-gray-200: #e9ecef;
+    --mandalo-gray-300: #dee2e6;
+    --mandalo-gray-500: #adb5bd;
+    --mandalo-gray-700: #495057;
+    --mandalo-border-radius: 8px;
+    --mandalo-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --mandalo-transition: all 0.3s ease;
+}
+
+/* ============================================
+   MAIN SHIPPING CONTAINER
+   ============================================ */
+#mandalo-shipping-container {
+    margin: 25px 0;
+    padding: 0;
+}
+
+#mandalo-shipping-container h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--mandalo-primary);
+    color: var(--mandalo-secondary);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#mandalo-shipping-container h3::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFC107"><path d="M19.15 8a2 2 0 0 0-1.72-1H15V5a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 1 1.73 3.49 3.49 0 0 0 7 .27h3.1a3.48 3.48 0 0 0 6.9 0 2 2 0 0 0 2-2v-3a1.07 1.07 0 0 0-.14-.52zM15 9h2.43l1.8 3H15zM6.5 19A1.5 1.5 0 1 1 8 17.5 1.5 1.5 0 0 1 6.5 19zm10 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+/* ============================================
+   ORIGIN ADDRESS SECTION
+   ============================================ */
+#mandalo-origin-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border: 1px solid #81c784;
+    border-radius: var(--mandalo-border-radius);
+}
+
+#mandalo-origin-section h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 15px;
+    color: #2e7d32;
+    font-size: 16px;
+}
+
+#mandalo-origin-section h4::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232e7d32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+#mandalo-origin-section .mandalo-origin-type-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#mandalo-origin-section .mandalo-origin-type-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background: #fff;
+    border: 2px solid #81c784;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--mandalo-transition);
+}
+
+#mandalo-origin-section .mandalo-origin-type-toggle label:hover {
+    background: #e8f5e9;
+}
+
+#mandalo-origin-section .mandalo-origin-type-toggle input:checked + span {
+    font-weight: 600;
+}
+
+#mandalo-origin-section .mandalo-origin-type-toggle input:checked ~ label,
+#mandalo-origin-section .mandalo-origin-type-toggle label:has(input:checked) {
+    background: #c8e6c9;
+    border-color: #2e7d32;
+}
+
+.mandalo-origin-address-input {
+    position: relative;
+}
+
+.mandalo-origin-address-input input {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border: 2px solid #81c784;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-origin-address-input input:focus {
+    border-color: #2e7d32;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+}
+
+.mandalo-origin-address-input::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232e7d32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>') no-repeat center;
+    background-size: contain;
+    pointer-events: none;
+}
+
+/* ============================================
+   SHIPPING TYPE SELECTOR
+   ============================================ */
+#mandalo-shipping-type-selector {
+    margin-bottom: 25px;
+}
+
+#mandalo-shipping-type-selector h4 {
+    margin: 0 0 15px;
+    color: var(--mandalo-secondary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.mandalo-shipping-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.mandalo-shipping-type-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: #fff;
+    border: 2px solid var(--mandalo-gray-300);
+    border-radius: var(--mandalo-border-radius);
+    cursor: pointer;
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-shipping-type-card:hover {
+    border-color: var(--mandalo-primary);
+    box-shadow: var(--mandalo-shadow);
+    transform: translateY(-2px);
+}
+
+.mandalo-shipping-type-card.selected {
+    border-color: var(--mandalo-primary);
+    background: var(--mandalo-primary-light);
+}
+
+.mandalo-shipping-type-card.selected::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: var(--mandalo-primary);
+    border-radius: 50%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px;
+}
+
+.mandalo-shipping-type-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mandalo-type-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.mandalo-type-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mandalo-gray-100);
+    border-radius: 8px;
+}
+
+.mandalo-type-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--mandalo-gray-700);
+}
+
+.mandalo-shipping-type-card.selected .mandalo-type-icon {
+    background: var(--mandalo-primary);
+}
+
+.mandalo-shipping-type-card.selected .mandalo-type-icon svg {
+    fill: var(--mandalo-secondary);
+}
+
+.mandalo-type-info {
+    flex: 1;
+}
+
+.mandalo-type-name {
+    display: block;
+    font-weight: 600;
+    color: var(--mandalo-secondary);
+    font-size: 15px;
+}
+
+.mandalo-type-time {
+    font-size: 12px;
+    color: var(--mandalo-gray-500);
+}
+
+.mandalo-type-description {
+    margin: 0 0 15px;
+    font-size: 13px;
+    color: var(--mandalo-gray-700);
+    line-height: 1.4;
+}
+
+.mandalo-type-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--mandalo-gray-200);
+}
+
+.mandalo-type-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mandalo-secondary);
+}
+
+.mandalo-type-price small {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--mandalo-gray-500);
+}
+
+.mandalo-type-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--mandalo-primary);
+    color: var(--mandalo-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.mandalo-type-badge.discount {
+    background: var(--mandalo-success);
+    color: #fff;
+}
+
+.mandalo-type-badge.express {
+    background: var(--mandalo-warning);
+    color: #fff;
+}
+
+.mandalo-type-badge.unavailable {
+    background: var(--mandalo-gray-300);
+    color: var(--mandalo-gray-700);
+}
+
+/* ============================================
+   MULTI-ADDRESS SECTION
+   ============================================ */
+#mandalo-multi-address-wrapper {
+    margin: 20px 0;
+    padding: 25px;
+    background: var(--mandalo-gray-100);
+    border: 1px solid var(--mandalo-gray-300);
+    border-radius: var(--mandalo-border-radius);
+    animation: mandaloSlideDown 0.3s ease;
+}
+
+@keyframes mandaloSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#mandalo-multi-address-wrapper h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 5px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--mandalo-primary);
+    color: var(--mandalo-secondary);
+    font-size: 16px;
+}
+
+#mandalo-multi-address-wrapper h4::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFC107"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+#mandalo-multi-address-wrapper .mandalo-intro {
+    margin: 0 0 20px;
+    color: var(--mandalo-gray-700);
+    font-size: 14px;
+}
+
+/* Stops Container */
+#mandalo-stops-container {
+    margin-bottom: 20px;
+}
+
+.mandalo-stop {
+    position: relative;
+    margin-bottom: 15px;
+    padding: 20px;
+    background: #fff;
+    border: 2px solid var(--mandalo-gray-300);
+    border-radius: var(--mandalo-border-radius);
+    transition: var(--mandalo-transition);
+    animation: mandaloSlideDown 0.3s ease;
+}
+
+.mandalo-stop:hover {
+    border-color: var(--mandalo-primary);
+}
+
+.mandalo-stop.dragging {
+    opacity: 0.5;
+    border-style: dashed;
+}
+
+.mandalo-stop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.mandalo-stop-number {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mandalo-stop-number .number-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--mandalo-primary);
+    color: var(--mandalo-secondary);
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 50%;
+}
+
+.mandalo-stop-number span {
+    font-weight: 600;
+    color: var(--mandalo-secondary);
+}
+
+.mandalo-stop-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.mandalo-drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--mandalo-gray-200);
+    border: none;
+    border-radius: 5px;
+    cursor: grab;
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-drag-handle:hover {
+    background: var(--mandalo-gray-300);
+}
+
+.mandalo-drag-handle:active {
+    cursor: grabbing;
+}
+
+.mandalo-drag-handle svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--mandalo-gray-700);
+}
+
+.mandalo-remove-stop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #ffebee;
+    color: var(--mandalo-danger);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-remove-stop:hover {
+    background: var(--mandalo-danger);
+    color: #fff;
+}
+
+.mandalo-stop-address-wrapper {
+    position: relative;
+}
+
+.mandalo-stop-address {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border: 2px solid var(--mandalo-gray-300);
+    border-radius: 5px;
+    font-size: 14px;
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-stop-address:focus {
+    border-color: var(--mandalo-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+}
+
+.mandalo-stop-address-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23adb5bd"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>') no-repeat center;
+    background-size: contain;
+    pointer-events: none;
+}
+
+/* Autocomplete dropdown */
+.mandalo-autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #fff;
+    border: 2px solid var(--mandalo-primary);
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.mandalo-autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--mandalo-gray-200);
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.mandalo-autocomplete-item:hover,
+.mandalo-autocomplete-item.active {
+    background: var(--mandalo-primary-light);
+}
+
+.mandalo-autocomplete-item strong {
+    display: block;
+    color: var(--mandalo-secondary);
+    font-size: 14px;
+}
+
+.mandalo-autocomplete-item small {
+    color: var(--mandalo-gray-500);
+    font-size: 12px;
+}
+
+/* Add Stop Button */
+#mandalo-add-stop {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--mandalo-primary);
+    color: var(--mandalo-secondary);
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--mandalo-transition);
+}
+
+#mandalo-add-stop:hover {
+    background: var(--mandalo-primary-dark);
+    transform: translateY(-1px);
+}
+
+#mandalo-add-stop svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+/* Route Options */
+#mandalo-route-options {
+    margin: 20px 0;
+    padding: 15px 20px;
+    background: #e8f5e9;
+    border-radius: 5px;
+}
+
+#mandalo-route-options label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--mandalo-secondary);
+}
+
+#mandalo-route-options input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--mandalo-success);
+}
+
+#mandalo-route-options .optimize-description {
+    margin: 8px 0 0 32px;
+    font-size: 12px;
+    color: var(--mandalo-gray-700);
+}
+
+/* Route Preview */
+#mandalo-route-preview {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--mandalo-primary-light);
+    border: 2px solid var(--mandalo-primary);
+    border-radius: var(--mandalo-border-radius);
+}
+
+#mandalo-route-preview h5 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 15px;
+    color: var(--mandalo-secondary);
+    font-size: 15px;
+}
+
+#mandalo-route-preview h5::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFC107"><path d="M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+#mandalo-route-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.mandalo-route-stat {
+    padding: 15px;
+    background: #fff;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.mandalo-route-stat-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: var(--mandalo-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mandalo-route-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--mandalo-secondary);
+}
+
+.mandalo-route-stat-value.price {
+    color: var(--mandalo-success);
+}
+
+#mandalo-optimized-order {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed var(--mandalo-primary);
+}
+
+#mandalo-optimized-order h6 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--mandalo-secondary);
+}
+
+#mandalo-optimized-list {
+    margin: 0;
+    padding: 0 0 0 25px;
+    list-style: decimal;
+}
+
+#mandalo-optimized-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--mandalo-gray-700);
+}
+
+/* ============================================
+   SCHEDULING SECTION
+   ============================================ */
+#mandalo-scheduling-wrapper {
+    margin: 20px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 1px solid #64b5f6;
+    border-radius: var(--mandalo-border-radius);
+    animation: mandaloSlideDown 0.3s ease;
+}
+
+#mandalo-scheduling-wrapper h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 5px;
+    color: #1565c0;
+    font-size: 16px;
+}
+
+#mandalo-scheduling-wrapper h4::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231565c0"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+#mandalo-scheduling-wrapper .scheduling-intro {
+    margin: 0 0 20px;
+    color: #1565c0;
+    font-size: 14px;
+}
+
+.mandalo-scheduling-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.mandalo-scheduling-fields label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1565c0;
+    font-size: 14px;
+}
+
+.mandalo-scheduling-fields input[type="date"],
+.mandalo-scheduling-fields select {
+    width: 100%;
+    padding: 12px 15px;
+    background: #fff;
+    border: 2px solid #64b5f6;
+    border-radius: 5px;
+    font-size: 14px;
+    color: var(--mandalo-secondary);
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-scheduling-fields input[type="date"]:focus,
+.mandalo-scheduling-fields select:focus {
+    border-color: #1565c0;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.2);
+}
+
+.mandalo-scheduling-discount {
+    margin-top: 15px;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+}
+
+.mandalo-scheduling-discount p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1565c0;
+}
+
+.mandalo-scheduling-discount .discount-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background: var(--mandalo-success);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 3px;
+}
+
+/* ============================================
+   EXPRESS SECTION
+   ============================================ */
+#mandalo-express-wrapper {
+    margin: 20px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 2px solid var(--mandalo-warning);
+    border-radius: var(--mandalo-border-radius);
+    animation: mandaloSlideDown 0.3s ease;
+}
+
+#mandalo-express-wrapper h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 15px;
+    color: #e65100;
+    font-size: 16px;
+}
+
+#mandalo-express-wrapper h4::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23e65100"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+.mandalo-express-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+}
+
+.mandalo-express-info .express-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--mandalo-warning);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mandalo-express-info .express-icon svg {
+    width: 28px;
+    height: 28px;
+    fill: #fff;
+}
+
+.mandalo-express-info .express-text {
+    flex: 1;
+}
+
+.mandalo-express-info .express-text strong {
+    display: block;
+    color: #e65100;
+    font-size: 16px;
+    margin-bottom: 3px;
+}
+
+.mandalo-express-info .express-text span {
+    color: var(--mandalo-gray-700);
+    font-size: 14px;
+}
+
+#mandalo-express-unavailable {
+    margin-top: 15px;
+    padding: 15px;
+    background: #ffebee;
+    border: 1px solid #ef9a9a;
+    border-radius: 5px;
+}
+
+#mandalo-express-unavailable p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--mandalo-danger);
+    font-size: 14px;
+}
+
+#mandalo-express-unavailable p::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23dc3545"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+/* ============================================
+   VEHICLE SECTION
+   ============================================ */
+#mandalo-vehicle-wrapper {
+    margin: 20px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+    border: 1px solid #f48fb1;
+    border-radius: var(--mandalo-border-radius);
+    animation: mandaloSlideDown 0.3s ease;
+}
+
+#mandalo-vehicle-wrapper h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 5px;
+    color: #c2185b;
+    font-size: 16px;
+}
+
+#mandalo-vehicle-wrapper h4::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23c2185b"><path d="M19.15 8a2 2 0 0 0-1.72-1H15V5a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 1 1.73 3.49 3.49 0 0 0 7 .27h3.1a3.48 3.48 0 0 0 6.9 0 2 2 0 0 0 2-2v-3a1.07 1.07 0 0 0-.14-.52zM15 9h2.43l1.8 3H15zM6.5 19A1.5 1.5 0 1 1 8 17.5 1.5 1.5 0 0 1 6.5 19zm10 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5z"/></svg>') no-repeat center;
+    background-size: contain;
+}
+
+#mandalo-vehicle-wrapper .vehicle-intro {
+    margin: 0 0 20px;
+    color: #c2185b;
+    font-size: 14px;
+}
+
+.mandalo-vehicle-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.mandalo-vehicle-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.mandalo-vehicle-field label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #c2185b;
+    font-size: 13px;
+}
+
+.mandalo-vehicle-field input {
+    padding: 12px 15px;
+    background: #fff;
+    border: 2px solid #f48fb1;
+    border-radius: 5px;
+    font-size: 14px;
+    color: var(--mandalo-secondary);
+    transition: var(--mandalo-transition);
+}
+
+.mandalo-vehicle-field input:focus {
+    border-color: #c2185b;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(194, 24, 91, 0.2);
+}
+
+.mandalo-vehicle-field .unit {
+    margin-top: 5px;
+    font-size: 12px;
+    color: var(--mandalo-gray-500);
+    text-align: center;
+}
+
+#mandalo-vehicle-recommendation {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: var(--mandalo-shadow);
+}
+
+#mandalo-vehicle-recommendation h5 {
+    margin: 0 0 15px;
+    color: #c2185b;
+    font-size: 15px;
+}
+
+#mandalo-vehicle-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.mandalo-vehicle-stat {
+    text-align: center;
+    padding: 10px;
+    background: #fce4ec;
+    border-radius: 5px;
+}
+
+.mandalo-vehicle-stat-label {
+    display: block;
+    font-size: 11px;
+    color: var(--mandalo-gray-500);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.mandalo-vehicle-stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #c2185b;
+}
+
+#mandalo-vehicle-oversized {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff3e0;
+    border: 1px solid #ffcc80;
+    border-radius: 5px;
+}
+
+#mandalo-vehicle-oversized p {
+    margin: 0 0 10px;
+    color: var(--mandalo-gray-700);
+    font-size: 14px;
+}
+
+#mandalo-vehicle-oversized .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--mandalo-transition);
+}
+
+#mandalo-vehicle-oversized .button:hover {
+    background: #128C7E;
+}
+
+/* ============================================
+   QUOTE SUMMARY BOX
+   ============================================ */
+#mandalo-quote-summary {
+    margin: 25px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, var(--mandalo-primary-light) 0%, #fff8e1 100%);
+    border: 2px solid var(--mandalo-primary);
+    border-radius: var(--mandalo-border-radius);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+#mandalo-quote-summary h4 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px dashed var(--mandalo-primary);
+    color: var(--mandalo-secondary);
+    font-size: 18px;
+}
+
+#mandalo-quote-summary .quote-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: var(--mandalo-success);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+.mandalo-quote-breakdown {
+    margin-bottom: 20px;
+}
+
+.mandalo-quote-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    font-size: 14px;
+}
+
+.mandalo-quote-row:last-child {
+    border-bottom: none;
+}
+
+.mandalo-quote-row.total {
+    padding-top: 15px;
+    margin-top: 10px;
+    border-top: 2px solid var(--mandalo-primary);
+    border-bottom: none;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.mandalo-quote-row.total .value {
+    color: var(--mandalo-success);
+}
+
+.mandalo-quote-row .label {
+    color: var(--mandalo-gray-700);
+}
+
+.mandalo-quote-row .value {
+    font-weight: 600;
+    color: var(--mandalo-secondary);
+}
+
+.mandalo-quote-row.discount .value {
+    color: var(--mandalo-success);
+}
+
+.mandalo-quote-eta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+}
+
+.mandalo-quote-eta svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--mandalo-gray-700);
+}
+
+.mandalo-quote-eta span {
+    font-size: 15px;
+    color: var(--mandalo-secondary);
+}
+
+.mandalo-quote-eta strong {
+    color: var(--mandalo-primary-dark);
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+.mandalo-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.mandalo-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mandalo-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 4px solid var(--mandalo-gray-300);
+    border-top-color: var(--mandalo-primary);
+    border-radius: 50%;
+    animation: mandaloSpin 0.8s linear infinite;
+}
+
+@keyframes mandaloSpin {
+    to { transform: rotate(360deg); }
+}
+
+.mandalo-calculating {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mandalo-gray-500);
+}
+
+.mandalo-calculating::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--mandalo-gray-300);
+    border-top-color: var(--mandalo-primary);
+    border-radius: 50%;
+    animation: mandaloSpin 0.8s linear infinite;
+}
+
+/* ============================================
+   RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 768px) {
+    .mandalo-shipping-types-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mandalo-vehicle-fields {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    #mandalo-vehicle-details {
+        grid-template-columns: 1fr;
+    }
+
+    #mandalo-route-details {
+        grid-template-columns: 1fr;
+    }
+
+    .mandalo-scheduling-fields {
+        grid-template-columns: 1fr;
+    }
+
+    #mandalo-multi-address-wrapper,
+    #mandalo-scheduling-wrapper,
+    #mandalo-express-wrapper,
+    #mandalo-vehicle-wrapper,
+    #mandalo-quote-summary {
+        padding: 20px 15px;
+    }
+
+    .mandalo-stop {
+        padding: 15px;
+    }
+
+    .mandalo-stop-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .mandalo-origin-type-toggle {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .mandalo-vehicle-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .mandalo-type-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mandalo-type-footer {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}

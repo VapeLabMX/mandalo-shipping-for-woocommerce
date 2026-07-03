@@ -1,0 +1,76 @@
+/**
+ * Mandalo Shipping - Admin Styles
+ */
+
+.mandalo-admin-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.mandalo-admin-section h3 {
+    margin: 0 0 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #FFC107;
+}
+
+#mandalo-rules-table {
+    margin: 20px 0;
+}
+
+#mandalo-rules-table th {
+    background: #f1f1f1;
+    padding: 10px;
+    text-align: left;
+}
+
+#mandalo-rules-table td {
+    padding: 10px;
+    vertical-align: middle;
+}
+
+#mandalo-rules-table select,
+#mandalo-rules-table input[type="text"],
+#mandalo-rules-table input[type="number"] {
+    width: 100%;
+    max-width: 200px;
+}
+
+#mandalo-rules-table .remove-rule {
+    color: #a00;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#mandalo-rules-table .remove-rule:hover {
+    color: #dc3232;
+}
+
+#mandalo-add-rule {
+    margin-right: 10px;
+}
+
+/* Rule builder styling */
+.mandalo-rule-row {
+    background: #f9f9f9;
+}
+
+.mandalo-rule-row:nth-child(even) {
+    background: #fff;
+}
+
+.mandalo-rule-row.ui-sortable-helper {
+    background: #fffbeb;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.mandalo-rule-row .sort-handle {
+    cursor: move;
+    color: #999;
+}
+
+.mandalo-rule-row .sort-handle:hover {
+    color: #333;
+}
