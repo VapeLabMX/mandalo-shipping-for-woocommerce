@@ -210,10 +210,18 @@
         updateMap: function(originCoords, destinationCoords) {
             var self = this;
 
-            // Show map section
-            $('.mandalo-map-section').slideDown(300);
+            // Show map section, then init/refresh Leaflet ONCE it is visible.
+            // Leaflet renders height 0 if L.map() runs while the container is
+            // still hidden/animating — so defer init to the slideDown callback
+            // and always invalidateSize() afterwards.
+            $('.mandalo-map-section').stop(true, true).slideDown(300, function() {
+                if (!self.map) {
+                    self.initMap();
+                }
+                self.map.invalidateSize(true);
+            });
 
-            // Initialize if needed
+            // Initialize immediately too (safe: initMap guards against dupes)
             if (!self.map) {
                 self.initMap();
             }

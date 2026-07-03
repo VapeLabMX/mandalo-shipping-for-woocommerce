@@ -3,7 +3,7 @@
  * Plugin Name: Mandalo Shipping for WooCommerce
  * Plugin URI: https://mandalo.mx
  * Description: Sistema de envíos express CDMX con múltiples opciones: A-B, Multi-destino, Express, Programado, Camioneta
- * Version: 2.2.0
+ * Version: 2.3.0
  * Author: Mandalo / VapeLab
  * Author URI: https://mandalo.mx
  * Text Domain: mandalo-shipping
