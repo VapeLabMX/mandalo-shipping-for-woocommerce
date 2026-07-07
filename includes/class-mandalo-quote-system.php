@@ -411,6 +411,9 @@ class Mandalo_Quote_System {
             'cart_url' => wc_get_cart_url(),
             'currency_symbol' => get_woocommerce_currency_symbol(),
             'maps_provider' => $use_google_maps ? 'google' : 'leaflet',
+            // Map ID para AdvancedMarkerElement (crear uno propio en GCP y guardarlo
+            // en la opcion mandalo_google_maps_map_id; DEMO_MAP_ID es el de ejemplo de Google)
+            'maps_map_id' => get_option('mandalo_google_maps_map_id', 'DEMO_MAP_ID'),
             'i18n' => [
                 'calculating' => 'Calculando...',
                 'add_to_cart' => 'Contratar Servicio',

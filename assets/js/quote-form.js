@@ -216,13 +216,12 @@
                 self.map = new google.maps.Map(document.getElementById('mandalo-map-container'), {
                     center: {lat: 19.4326, lng: -99.1332},
                     zoom: 12,
+                    // mapId requerido por AdvancedMarkerElement; sin el, el mapa
+                    // entra en modo degradado ("This page can't load Google Maps correctly")
+                    mapId: (window.MandaloQuote && MandaloQuote.maps_map_id) || 'DEMO_MAP_ID',
                     mapTypeControl: false,
                     streetViewControl: false,
-                    fullscreenControl: false,
-                    styles: [
-                        {featureType: 'poi', elementType: 'labels', stylers: [{visibility: 'off'}]},
-                        {featureType: 'transit.station', stylers: [{visibility: 'simplified'}]}
-                    ]
+                    fullscreenControl: false
                 });
                 self._directionsRenderer = null; // reset route renderer
             } else {
@@ -1235,14 +1234,13 @@
             self.map = new google.maps.Map(document.getElementById('mandalo-fullscreen-map'), {
                 center: {lat: lat, lng: lng},
                 zoom: zoom,
+                // mapId requerido por AdvancedMarkerElement (ver _updateMapGoogle)
+                mapId: (window.MandaloQuote && MandaloQuote.maps_map_id) || 'DEMO_MAP_ID',
                 mapTypeControl: false,
                 streetViewControl: false,
                 fullscreenControl: false,
                 zoomControl: true,
-                zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
-                styles: [
-                    {featureType: 'poi', elementType: 'labels', stylers: [{visibility: 'off'}]}
-                ]
+                zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP }
             });
 
             // Amber teardrop marker element
