@@ -1,689 +1,782 @@
 /**
- * Mandalo Quote Form Styles
- * Modern, clean design for delivery service quotation
+ * Mandalo Quote Form — brand-integrated design (mdlo)
+ *
+ * Port of the production designer stylesheet ("mdlo-aligned", plugin v2.1.2)
+ * extended to the gmaps-migration markup (service cards, contacts, Google Maps).
+ *
+ * Hardened against Elementor kit-5379 global styles, which otherwise win by
+ * specificity and break the widget:
+ *   .elementor-kit-5379 label                  -> pale #DEECFF labels (invisible)
+ *   .elementor-kit-5379 input:not(...)         -> border:none on inputs
+ *   .elementor-kit-5379 button                 -> padding 16px 36px + yellow shadow
+ *                                                 (collapses 20px SVGs to width:0)
+ * Countermeasures: ID-scoped selectors (#mandalo-quote-container, modals) plus
+ * !important on the exact properties the kit sets.
  */
 
-/* Container */
-.mandalo-quote-widget {
+:root {
+    --mdlo-blue: #1C61CE;
+    --mdlo-yellow: #facc15;
+    --mdlo-yellow-strong: #FFC107;
+    --mdlo-ink: #0E0F18;
+    --mdlo-body: #31393C;
+    --mdlo-muted: #6b7280;
+    --mdlo-line: rgba(0, 0, 0, .10);
+    --mdlo-bg: #f4f7ff;
+    --mdlo-shadow: 7px 7px 0 0 rgba(255, 193, 7, .83);
+    --mdlo-shadow-sm: 4px 4px 0 0 rgba(255, 193, 7, .83);
+    --mdlo-font-head: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mdlo-font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Container ─────────────────────────────────────────────────────────── */
+#mandalo-quote-container.mandalo-quote-widget {
     max-width: 600px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0 auto;
+    padding: 0 0 8px;
+    background: var(--mdlo-bg);
+    border-radius: 0;
+    box-shadow: none;
+    font-family: var(--mdlo-font-body);
+    color: var(--mdlo-body);
     position: relative;
 }
 
-/* Header */
-.mandalo-quote-header {
+/* ── Header ────────────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-quote-header {
     text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #eee;
-}
-
-.mandalo-quote-header h2 {
-    margin: 0 0 0.5rem;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.mandalo-quote-subtitle {
     margin: 0;
-    color: #666;
-    font-size: 1rem;
+    padding: 18px 16px 0;
+    border-bottom: 0;
 }
 
-/* Form Sections */
-.mandalo-form-section {
-    margin-bottom: 1.5rem;
+#mandalo-quote-container .mandalo-quote-header h2 {
+    margin: 0;
+    font-family: var(--mdlo-font-head);
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--mdlo-yellow-strong);
 }
 
-.mandalo-section-label {
+#mandalo-quote-container .mandalo-quote-subtitle {
+    margin: 6px 0 0;
+    color: var(--mdlo-body);
+    font-size: 18px;
+    font-weight: 400;
+}
+
+/* ── Form + sections ───────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-quote-form {
+    padding: 16px;
+}
+
+#mandalo-quote-container .mandalo-form-section {
+    margin: 18px 0 0;
+}
+
+/* Section labels — kit paints label pale #DEECFF; force ink */
+#mandalo-quote-container .mandalo-section-label,
+#mandalo-address-modal .mandalo-form-row label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.75rem;
+    gap: 8px;
+    font-family: var(--mdlo-font-body);
+    font-size: 17px;
+    font-weight: 600 !important;
+    letter-spacing: -0.2px;
+    color: var(--mdlo-ink) !important;
+    margin: 0 0 10px;
 }
 
-.mandalo-label-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
+#mandalo-quote-container .mandalo-label-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 0;
     display: inline-block;
+    flex: 0 0 auto;
 }
 
-.mandalo-label-icon.origin {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
+#mandalo-quote-container .mandalo-label-icon.origin { background: #22c55e; }
+#mandalo-quote-container .mandalo-label-icon.destination { background: #f97316; }
 
-.mandalo-label-icon.destination {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-/* Service Type Selection */
-.mandalo-service-types {
+/* ── Service type cards ────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-service-types {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 
-@media (max-width: 480px) {
-    .mandalo-service-types {
-        grid-template-columns: 1fr;
-    }
-}
-
-.mandalo-service-type-option {
+#mandalo-quote-container .mandalo-service-type-option {
     position: relative;
     cursor: pointer;
+    display: block;
 }
 
-.mandalo-service-type-option input {
+#mandalo-quote-container .mandalo-service-type-option input {
     position: absolute;
     opacity: 0;
+    width: 1px;
+    height: 1px;
     pointer-events: none;
 }
 
-.mandalo-type-content {
+#mandalo-quote-container .mandalo-type-content {
+    background: #fff;
+    border: 1px solid var(--mdlo-ink);
+    border-radius: 1px;
+    box-shadow: var(--mdlo-shadow-sm);
+    padding: 14px 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem;
-    background: #f8f9fa;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    transition: all 0.2s ease;
+    justify-content: center;
+    gap: 6px;
+    min-height: 96px;
     text-align: center;
+    position: relative;
+    transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
-.mandalo-service-type-option:hover .mandalo-type-content {
-    border-color: #ddd;
-    background: #fff;
-}
-
-.mandalo-service-type-option.selected .mandalo-type-content,
-.mandalo-service-type-option input:checked + .mandalo-type-content {
-    border-color: #f59e0b;
+#mandalo-quote-container .mandalo-service-type-option:hover .mandalo-type-content,
+#mandalo-quote-container .mandalo-service-type-option:focus-within .mandalo-type-content {
     background: #fffbeb;
+    transform: translate(1px, 1px);
+    box-shadow: 3px 3px 0 0 rgba(255, 193, 7, .83);
 }
 
-.mandalo-type-icon {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 0.5rem;
-    background: #e5e7eb;
-    border-radius: 10px;
+#mandalo-quote-container .mandalo-service-type-option.selected .mandalo-type-content,
+#mandalo-quote-container .mandalo-service-type-option input:checked + .mandalo-type-content {
+    background: var(--mdlo-yellow);
+    border-color: var(--mdlo-ink);
+    box-shadow: var(--mdlo-shadow-sm);
+    transform: none;
+}
+
+#mandalo-quote-container .mandalo-type-icon {
+    width: 38px;
+    height: 38px;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    background: #fff;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.mandalo-type-icon::before {
+#mandalo-quote-container .mandalo-type-icon::before {
     content: '';
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-.mandalo-type-icon[data-icon="truck"]::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23666' viewBox='0 0 24 24'%3E%3Cpath d='M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E");
+#mandalo-quote-container .mandalo-type-icon[data-icon="truck"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%230E0F18' viewBox='0 0 24 24'%3E%3Cpath d='M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E");
 }
 
-.mandalo-type-icon[data-icon="bolt"]::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23f59e0b' viewBox='0 0 24 24'%3E%3Cpath d='M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z'/%3E%3C/svg%3E");
+#mandalo-quote-container .mandalo-type-icon[data-icon="bolt"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%230E0F18' viewBox='0 0 24 24'%3E%3Cpath d='M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z'/%3E%3C/svg%3E");
 }
 
-.mandalo-type-icon[data-icon="calendar"]::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23666' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z'/%3E%3C/svg%3E");
+#mandalo-quote-container .mandalo-type-icon[data-icon="calendar"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%230E0F18' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z'/%3E%3C/svg%3E");
 }
 
-.mandalo-type-icon[data-icon="truck-loading"]::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23666' viewBox='0 0 24 24'%3E%3Cpath d='M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E");
+#mandalo-quote-container .mandalo-type-icon[data-icon="truck-loading"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%230E0F18' viewBox='0 0 24 24'%3E%3Cpath d='M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E");
 }
 
-.mandalo-service-type-option.selected .mandalo-type-icon,
-.mandalo-service-type-option input:checked + .mandalo-type-content .mandalo-type-icon {
-    background: #fef3c7;
-}
-
-.mandalo-type-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #1a1a1a;
-}
-
-.mandalo-type-desc {
-    font-size: 0.75rem;
-    color: #666;
-    margin-top: 0.25rem;
-}
-
-.mandalo-type-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: #f59e0b;
-    color: #fff;
-    font-size: 0.65rem;
+#mandalo-quote-container .mandalo-type-name {
     font-weight: 700;
-    padding: 0.2rem 0.5rem;
-    border-radius: 999px;
+    font-size: 14px;
+    color: var(--mdlo-ink);
+    line-height: 1.1;
 }
 
-/* Input Fields */
-.mandalo-input {
+#mandalo-quote-container .mandalo-type-desc {
+    font-size: 12px;
+    color: var(--mdlo-muted);
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.15;
+}
+
+#mandalo-quote-container .mandalo-service-type-option.selected .mandalo-type-desc,
+#mandalo-quote-container .mandalo-service-type-option input:checked + .mandalo-type-content .mandalo-type-desc {
+    color: var(--mdlo-ink);
+}
+
+#mandalo-quote-container .mandalo-type-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--mdlo-yellow-strong);
+    border: 2px solid var(--mdlo-ink);
+    color: var(--mdlo-ink);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 0;
+}
+
+/* ── Inputs — kit sets border:none; force visible ink border ───────────── */
+#mandalo-quote-container .mandalo-input,
+#mandalo-address-modal .mandalo-input {
     width: 100%;
-    padding: 0.875rem 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: all 0.2s ease;
     box-sizing: border-box;
-}
-
-.mandalo-input:focus {
+    background: #fff !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    padding: 12px 14px !important;
+    min-height: 48px;
+    font-family: var(--mdlo-font-body);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--mdlo-ink) !important;
+    line-height: 1.3;
     outline: none;
-    border-color: #f59e0b;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    box-shadow: none;
+    transition: box-shadow .15s ease;
 }
 
-.mandalo-input::placeholder {
-    color: #9ca3af;
+#mandalo-quote-container .mandalo-input:focus,
+#mandalo-address-modal .mandalo-input:focus {
+    border-color: var(--mdlo-ink) !important;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, .40);
 }
 
-/* Address Row Layout */
-.mandalo-address-row {
-    display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
+#mandalo-quote-container .mandalo-input::placeholder,
+#mandalo-address-modal .mandalo-input::placeholder {
+    color: #8a90a0;
+    font-weight: 500;
+    opacity: 1;
 }
 
-.mandalo-address-row .mandalo-address-input {
+/* Emoji pin inside inputs — hidden per production design */
+#mandalo-quote-container .mandalo-input-icon {
+    display: none !important;
+}
+
+#mandalo-quote-container .mandalo-input-with-icon {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
     flex: 1;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    position: relative;
 }
 
-.mandalo-input-with-icon {
-    padding-left: 2.75rem;
-    padding-right: 3rem;
-    flex: 1;
-}
-
-.mandalo-number-input {
+#mandalo-quote-container .mandalo-number-input {
     width: 90px !important;
     min-width: 90px;
     flex-shrink: 0;
     text-align: center;
-    padding: 0.875rem 0.5rem !important;
+    padding: 12px 8px !important;
 }
 
-.mandalo-input-icon {
-    position: absolute;
-    left: 0.875rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.1rem;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.mandalo-map-btn {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: #f3f4f6;
-    border-radius: 8px;
-    cursor: pointer;
+/* ── Address rows ──────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-address-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6b7280;
-    transition: all 0.2s;
-    z-index: 2;
+    gap: 10px;
+    align-items: flex-start;
 }
 
-.mandalo-map-btn:hover {
-    background: #e5e7eb;
-    color: #374151;
-}
-
-.mandalo-map-btn:active {
-    transform: translateY(-50%) scale(0.95);
-}
-
-.mandalo-address-book-btn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    border: 2px solid #e5e7eb;
-    background: #fff;
-    border-radius: 10px;
-    cursor: pointer;
+#mandalo-quote-container .mandalo-address-row .mandalo-address-input,
+#mandalo-quote-container .mandalo-destination-row .mandalo-address-input {
+    flex: 1;
+    min-width: 0;
     display: flex;
+    gap: 10px;
     align-items: center;
-    justify-content: center;
-    color: #6b7280;
-    transition: all 0.2s;
-}
-
-.mandalo-address-book-btn:hover {
-    border-color: #f59e0b;
-    color: #f59e0b;
-    background: #fffbeb;
-}
-
-/* Address Input with Suggestions */
-.mandalo-address-input {
     position: relative;
 }
 
-.mandalo-address-suggestions {
+/* Map button — flex item at the end of the address row. The kit inflates
+   buttons (padding 16/36 collapses the SVG); pin every box property */
+#mandalo-quote-container .mandalo-map-btn {
+    position: static;
+    flex: 0 0 auto;
+    width: 48px !important;
+    height: 48px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    background: var(--mdlo-yellow) !important;
+    color: var(--mdlo-ink) !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+#mandalo-quote-container .mandalo-map-btn:hover {
+    background: var(--mdlo-yellow-strong) !important;
+}
+
+#mandalo-quote-container .mandalo-map-btn:active {
+    transform: translate(1px, 1px);
+}
+
+#mandalo-quote-container .mandalo-map-btn svg {
+    display: block;
+    width: 20px !important;
+    height: 20px !important;
+    max-width: none;
+    flex: 0 0 auto;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* Address book button — hidden per production design */
+#mandalo-quote-container .mandalo-address-book-btn {
+    display: none !important;
+}
+
+/* ── Autocomplete suggestions ──────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-address-suggestions,
+#mandalo-address-modal .mandalo-address-suggestions {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
     background: #fff;
-    border: 2px solid #f59e0b;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    box-shadow: var(--mdlo-shadow);
     z-index: 9999;
     display: none;
-    max-height: 250px;
+    max-height: 260px;
     overflow-y: auto;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
-.mandalo-address-suggestions.show {
+#mandalo-quote-container .mandalo-address-suggestions.show,
+#mandalo-address-modal .mandalo-address-suggestions.show {
     display: block;
-    animation: mandalo-dropdown 0.2s ease-out;
-}
-
-@keyframes mandalo-dropdown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 .mandalo-suggestion-loading {
-    padding: 1rem;
+    padding: 12px;
     text-align: center;
-    color: #9ca3af;
-    font-size: 0.875rem;
+    color: var(--mdlo-muted);
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .mandalo-suggestion-item {
-    padding: 0.875rem 1rem;
+    padding: 10px 12px;
     cursor: pointer;
-    border-bottom: 1px solid #f3f4f6;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    transition: background 0.15s;
-}
-
-.mandalo-suggestion-item:hover {
-    background: #fef3c7;
-}
-
-.mandalo-suggestion-item:last-child {
-    border-bottom: none;
+    border-bottom: 1px solid var(--mdlo-line);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--mdlo-ink);
+    transition: background .15s;
 }
 
 .mandalo-suggestion-item::before {
-    content: '📍 ';
+    content: '' !important;
+}
+
+.mandalo-suggestion-item:hover {
+    background: rgba(250, 204, 21, .22);
+}
+
+.mandalo-suggestion-item:last-child {
+    border-bottom: 0;
 }
 
 .mandalo-suggestion-item.mandalo-no-results {
-    color: #9ca3af;
-    font-style: italic;
+    color: var(--mdlo-muted);
+    font-style: normal;
     cursor: default;
-}
-
-.mandalo-suggestion-item.mandalo-no-results::before {
-    content: '';
 }
 
 .mandalo-suggestion-item.mandalo-no-results:hover {
     background: transparent;
 }
 
-/* Destination Rows */
-#mandalo-destinations-container {
+/* ── Destinations / recipients ─────────────────────────────────────────── */
+#mandalo-destinations-container,
+#mandalo-recipients-container {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 12px;
 }
 
-.mandalo-destination-row {
+#mandalo-quote-container .mandalo-destination-row,
+#mandalo-quote-container .mandalo-recipient-row {
     display: flex;
-    gap: 0.5rem;
+    gap: 10px;
+    align-items: center;
+}
+
+#mandalo-quote-container .mandalo-recipient-row {
     align-items: flex-start;
 }
 
-.mandalo-destination-row .mandalo-address-input {
+#mandalo-quote-container .mandalo-recipient-row .mandalo-contact-row {
     flex: 1;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    position: relative;
+    min-width: 0;
 }
 
-.mandalo-remove-destination {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: #fee2e2;
-    color: #dc2626;
-    border-radius: 8px;
+#mandalo-quote-container .mandalo-remove-destination,
+#mandalo-quote-container .mandalo-remove-recipient {
+    width: 28px !important;
+    height: 28px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--mdlo-ink) !important;
+    font-size: 22px !important;
+    font-weight: 700;
+    line-height: 1;
     cursor: pointer;
-    font-size: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    margin-top: 6px;
+    flex-shrink: 0;
 }
 
-.mandalo-remove-destination:hover {
-    background: #fecaca;
+#mandalo-quote-container .mandalo-remove-destination:hover,
+#mandalo-quote-container .mandalo-remove-recipient:hover {
+    color: #dc2626 !important;
+    background: transparent !important;
 }
 
-/* Add Button */
-.mandalo-add-btn {
+#mandalo-quote-container .mandalo-recipient-row .mandalo-remove-recipient {
+    margin-top: 10px;
+}
+
+/* ── Add buttons ───────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-add-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: #f3f4f6;
-    border: 2px dashed #d1d5db;
-    border-radius: 10px;
-    color: #6b7280;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
+    gap: 8px;
     justify-content: center;
-    margin-top: 0.75rem;
-}
-
-.mandalo-add-btn:hover {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-    color: #374151;
-}
-
-.mandalo-add-btn span {
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-/* Scheduled Options */
-.mandalo-scheduled-options,
-.mandalo-package-options {
-    background: #f8f9fa;
-    padding: 1.25rem;
-    border-radius: 12px;
-    margin-top: 1rem;
-}
-
-.mandalo-datetime-row,
-.mandalo-contact-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-}
-
-@media (max-width: 480px) {
-    .mandalo-datetime-row,
-    .mandalo-contact-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Dimensions Row */
-.mandalo-dimensions-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
-}
-
-@media (max-width: 480px) {
-    .mandalo-dimensions-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-.mandalo-dimension {
-    position: relative;
-}
-
-.mandalo-dimension .mandalo-input {
-    padding-right: 2.5rem;
-}
-
-.mandalo-unit {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.75rem;
-    color: #9ca3af;
-    pointer-events: none;
-}
-
-/* Buttons */
-.mandalo-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 12px 16px !important;
+    min-height: 0 !important;
+    background: #fff !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    box-shadow: var(--mdlo-shadow-sm) !important;
+    color: var(--mdlo-ink) !important;
+    font-family: var(--mdlo-font-body);
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
+    width: fit-content;
+    margin: 12px 0 0 auto;
+    transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.mandalo-btn-primary {
-    /* Brand CTA: yellow fill, ink text/border, hard yellow shadow */
-    background: #FFC107;
-    color: #0E0F18;
-    border: 1px solid #0E0F18;
-    border-radius: 1px;
-    box-shadow: 5px 5px 0 rgba(255, 193, 7, .55);
-    font-family: "Lexend", inherit;
+#mandalo-quote-container .mandalo-add-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 rgba(255, 193, 7, .83) !important;
+}
+
+#mandalo-quote-container .mandalo-add-btn span {
+    font-size: 16px;
     font-weight: 700;
 }
 
-.mandalo-btn-primary:hover {
-    background: #F9CC0E;
+/* ── Scheduled / package panels ────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-scheduled-options,
+#mandalo-quote-container .mandalo-package-options {
+    background: #fff;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    box-shadow: var(--mdlo-shadow-sm);
+    padding: 14px;
+    margin-top: 18px;
+}
+
+#mandalo-quote-container .mandalo-datetime-row,
+#mandalo-quote-container .mandalo-contact-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* ── Dimensions ────────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-dimensions-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+#mandalo-quote-container .mandalo-dimension {
+    position: relative;
+}
+
+#mandalo-quote-container .mandalo-dimension .mandalo-input {
+    padding-right: 44px !important;
+}
+
+#mandalo-quote-container .mandalo-unit {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--mdlo-muted);
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* ── Help text ─────────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-help-text {
+    font-size: 13px;
+    color: var(--mdlo-muted);
+    font-weight: 500;
+    margin: 10px 0 0;
+}
+
+/* ── Inline map ────────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-map-section {
+    margin-top: 18px;
+}
+
+#mandalo-map-container {
+    height: 250px;
+    width: 100%;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    background: #fff;
+    overflow: hidden;
+    margin-top: 4px;
+    z-index: 1;
+}
+
+/* Google Maps — hide default clutter on the small inline map */
+#mandalo-map-container .gmnoprint a,
+#mandalo-map-container .gmnoprint span {
+    display: none;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-btn,
+#mandalo-address-modal .mandalo-btn,
+.mandalo-fullscreen-modal .mandalo-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 18px !important;
+    min-height: 0 !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    font-family: var(--mdlo-font-head);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+#mandalo-quote-container .mandalo-btn-primary,
+#mandalo-address-modal .mandalo-btn-primary,
+.mandalo-fullscreen-modal .mandalo-btn-primary {
+    background: var(--mdlo-yellow-strong) !important;
+    color: var(--mdlo-ink) !important;
+    box-shadow: var(--mdlo-shadow) !important;
+}
+
+#mandalo-quote-container .mandalo-btn-primary:hover,
+#mandalo-address-modal .mandalo-btn-primary:hover,
+.mandalo-fullscreen-modal .mandalo-btn-primary:hover {
+    background: var(--mdlo-yellow) !important;
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 0 rgba(255, 193, 7, .83) !important;
+}
+
+#mandalo-quote-container .mandalo-btn-success {
+    background: var(--mdlo-ink) !important;
+    color: #fff !important;
+    box-shadow: var(--mdlo-shadow) !important;
+}
+
+#mandalo-quote-container .mandalo-btn-success:hover {
+    background: #23242e !important;
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 0 rgba(255, 193, 7, .83) !important;
+}
+
+#mandalo-quote-container .mandalo-btn-secondary,
+#mandalo-address-modal .mandalo-btn-secondary {
+    background: #fff !important;
+    color: var(--mdlo-ink) !important;
+    box-shadow: var(--mdlo-shadow-sm) !important;
+}
+
+#mandalo-quote-container .mandalo-btn-secondary:hover,
+#mandalo-address-modal .mandalo-btn-secondary:hover {
+    background: var(--mdlo-bg) !important;
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 rgba(255, 193, 7, .55);
-    color: #0E0F18;
+    box-shadow: 2px 2px 0 0 rgba(255, 193, 7, .83) !important;
 }
 
-.mandalo-btn-success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: #fff;
-}
-
-.mandalo-btn-success:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-}
-
-.mandalo-btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-.mandalo-btn-secondary:hover {
-    background: #e5e7eb;
-}
-
-.mandalo-btn:disabled {
-    opacity: 0.6;
+#mandalo-quote-container .mandalo-btn:disabled {
+    opacity: .6;
     cursor: not-allowed;
     transform: none !important;
 }
 
-/* Quote Result */
-.mandalo-quote-result {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid #e5e7eb;
+/* ── Quote result ──────────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-quote-result {
+    margin: 18px 16px 16px;
+    border-top: 2px solid var(--mdlo-ink);
+    padding-top: 16px;
 }
 
-.mandalo-result-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
+#mandalo-quote-container .mandalo-result-header {
+    text-align: left;
+    margin-bottom: 12px;
 }
 
-.mandalo-result-header h3 {
+#mandalo-quote-container .mandalo-result-header h3 {
     margin: 0;
-    font-size: 1.25rem;
-    color: #1a1a1a;
+    font-family: var(--mdlo-font-head);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--mdlo-ink);
 }
 
-.mandalo-result-details {
-    background: #f8f9fa;
-    padding: 1.25rem;
-    border-radius: 12px;
-    margin-bottom: 1rem;
+#mandalo-quote-container .mandalo-result-details {
+    background: #fff;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    padding: 12px;
+    box-shadow: var(--mdlo-shadow-sm);
+    margin-bottom: 16px;
 }
 
-.mandalo-result-row {
+#mandalo-quote-container .mandalo-result-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e5e7eb;
+    gap: 12px;
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--mdlo-line);
 }
 
-.mandalo-result-row:last-child {
-    border-bottom: none;
+#mandalo-quote-container .mandalo-result-row:last-child {
+    border-bottom: 0;
 }
 
-.mandalo-result-label {
-    color: #6b7280;
-    font-size: 0.875rem;
+#mandalo-quote-container .mandalo-result-label {
+    color: var(--mdlo-muted);
+    font-size: 13px;
+    font-weight: 500;
 }
 
-.mandalo-result-value {
-    font-weight: 600;
-    color: #1a1a1a;
+#mandalo-quote-container .mandalo-result-value {
+    color: var(--mdlo-ink);
+    font-size: 14px;
+    font-weight: 700;
 }
 
 #mandalo-result-breakdown {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px dashed #d1d5db;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(0, 0, 0, .25);
 }
 
 .mandalo-breakdown-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    padding: 0.25rem 0;
-    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mdlo-muted);
+    padding: 4px 0;
 }
 
-.mandalo-breakdown-row.discount {
-    color: #059669;
-}
+.mandalo-breakdown-row.discount { color: #059669; }
+.mandalo-breakdown-row.surcharge { color: #dc2626; }
 
-.mandalo-breakdown-row.surcharge {
-    color: #dc2626;
-}
-
-/* Total */
-.mandalo-result-total {
+#mandalo-quote-container .mandalo-result-total {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem;
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
+    padding: 14px 12px;
+    background: var(--mdlo-yellow);
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    margin-bottom: 16px;
 }
 
-.mandalo-total-label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #92400e;
-}
-
-.mandalo-total-price {
-    font-size: 1.75rem;
+#mandalo-quote-container .mandalo-total-label {
+    font-size: 14px;
     font-weight: 700;
-    color: #92400e;
+    color: var(--mdlo-ink);
 }
 
-/* Result Actions */
-.mandalo-result-actions {
+#mandalo-quote-container .mandalo-total-price {
+    font-family: var(--mdlo-font-head);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--mdlo-ink);
+    line-height: 1;
+}
+
+#mandalo-quote-container .mandalo-result-actions {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 0.75rem;
+    gap: 12px;
 }
 
-@media (max-width: 480px) {
-    .mandalo-result-actions {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Loading */
-.mandalo-loading {
+/* ── Loading overlay ───────────────────────────────────────────────────── */
+#mandalo-quote-container .mandalo-loading {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
+    inset: 0;
+    background: rgba(244, 247, 255, .93);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    border-radius: 16px;
+    gap: 12px;
+    border-radius: 0;
     z-index: 1000;
 }
 
 .mandalo-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #f59e0b;
-    border-radius: 50%;
-    animation: mandalo-spin 0.8s linear infinite;
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(0, 0, 0, .15);
+    border-top-color: var(--mdlo-ink);
+    border-radius: 999px;
+    animation: mandalo-spin .8s linear infinite;
 }
 
 @keyframes mandalo-spin {
     to { transform: rotate(360deg); }
 }
 
-.mandalo-loading span {
-    color: #6b7280;
-    font-weight: 500;
+#mandalo-quote-container .mandalo-loading span {
+    color: var(--mdlo-ink);
+    font-weight: 600;
 }
 
-/* Success Animation */
+/* ── Error state ───────────────────────────────────────────────────────── */
+.mandalo-error {
+    background: #fff;
+    border: 2px solid var(--mdlo-ink);
+    box-shadow: var(--mdlo-shadow-sm);
+    color: #dc2626;
+    padding: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+/* ── Success animation ─────────────────────────────────────────────────── */
 @keyframes mandalo-success {
-    0% { transform: scale(0.8); opacity: 0; }
-    50% { transform: scale(1.05); }
+    0% { transform: scale(0.9); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
 
@@ -691,644 +784,365 @@
     animation: mandalo-success 0.3s ease-out;
 }
 
-/* Error State */
-.mandalo-error {
-    background: #fef2f2;
-    color: #dc2626;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .mandalo-quote-widget {
-        background: #1f2937;
-        color: #f3f4f6;
-    }
-
-    .mandalo-quote-header h2 {
-        color: #f3f4f6;
-    }
-
-    .mandalo-quote-subtitle {
-        color: #9ca3af;
-    }
-
-    .mandalo-section-label {
-        color: #e5e7eb;
-    }
-
-    .mandalo-type-content {
-        background: #374151;
-        border-color: #4b5563;
-    }
-
-    .mandalo-service-type-option:hover .mandalo-type-content {
-        background: #4b5563;
-    }
-
-    .mandalo-service-type-option.selected .mandalo-type-content {
-        background: #451a03;
-        border-color: #f59e0b;
-    }
-
-    .mandalo-type-name {
-        color: #f3f4f6;
-    }
-
-    .mandalo-input {
-        background: #374151;
-        border-color: #4b5563;
-        color: #f3f4f6;
-    }
-
-    .mandalo-input:focus {
-        border-color: #f59e0b;
-    }
-
-    .mandalo-address-suggestions {
-        background: #374151;
-        border-color: #4b5563;
-    }
-
-    .mandalo-suggestion-item {
-        border-color: #4b5563;
-    }
-
-    .mandalo-suggestion-item:hover {
-        background: #451a03;
-    }
-
-    .mandalo-add-btn {
-        background: #374151;
-        border-color: #4b5563;
-        color: #9ca3af;
-    }
-
-    .mandalo-scheduled-options,
-    .mandalo-package-options,
-    .mandalo-result-details {
-        background: #374151;
-    }
-
-    .mandalo-result-row {
-        border-color: #4b5563;
-    }
-
-    .mandalo-loading {
-        background: rgba(31, 41, 55, 0.95);
-    }
-}
-
-/* Recipients Section */
-#mandalo-recipients-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.mandalo-recipient-row {
-    display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
-}
-
-.mandalo-recipient-row .mandalo-contact-row {
-    flex: 1;
-}
-
-.mandalo-remove-recipient {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: #fee2e2;
-    color: #dc2626;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    margin-top: 6px;
-    flex-shrink: 0;
-}
-
-.mandalo-remove-recipient:hover {
-    background: #fecaca;
-}
-
-/* Help Text */
-.mandalo-help-text {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    margin-top: 0.5rem;
-    margin-bottom: 0;
-}
-
-/* Map Section */
-.mandalo-map-section {
-    margin-top: 1rem;
-}
-
-#mandalo-map-container {
-    margin-top: 0.5rem;
-    z-index: 1;
-}
-
-/* Leaflet marker styling overrides */
-.mandalo-marker-origin,
-.mandalo-marker-dest {
-    background: transparent !important;
-    border: none !important;
-}
-
-/* Dark mode for new elements */
-@media (prefers-color-scheme: dark) {
-    .mandalo-help-text {
-        color: #6b7280;
-    }
-
-    .mandalo-remove-recipient {
-        background: #450a0a;
-        color: #fca5a5;
-    }
-
-    .mandalo-remove-recipient:hover {
-        background: #7f1d1d;
-    }
-}
-
-/* Address Book Button */
-.mandalo-address-book-selector {
-    margin-bottom: 0.5rem;
-}
-
-.mandalo-address-book-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.mandalo-address-book-btn:hover {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    transform: translateY(-1px);
-}
-
-.mandalo-book-icon {
-    font-size: 1.1rem;
-}
-
-.mandalo-save-address-btn {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.4rem 0.75rem;
-    background: transparent;
-    color: #3b82f6;
-    border: 1px dashed #3b82f6;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.mandalo-save-address-btn:hover {
-    background: #eff6ff;
-}
-
-/* Address Book Modal */
-.mandalo-modal {
+/* ── Address book modal ────────────────────────────────────────────────── */
+#mandalo-address-modal.mandalo-modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 99999;
-    padding: 1rem;
+    padding: 16px;
 }
 
-.mandalo-modal-content {
+#mandalo-address-modal .mandalo-modal-content {
     background: #fff;
-    border-radius: 16px;
-    max-width: 500px;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    max-width: 520px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: 12px 12px 0 var(--mdlo-yellow);
+    font-family: var(--mdlo-font-body);
 }
 
-.mandalo-modal-header {
+#mandalo-address-modal .mandalo-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 14px;
+    border-bottom: 2px solid var(--mdlo-ink);
 }
 
-.mandalo-modal-header h3 {
+#mandalo-address-modal .mandalo-modal-header h3 {
     margin: 0;
-    font-size: 1.25rem;
-    color: #1a1a1a;
+    font-family: var(--mdlo-font-head);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--mdlo-ink);
 }
 
-.mandalo-modal-close {
-    background: none;
-    border: none;
-    font-size: 1.75rem;
-    color: #9ca3af;
-    cursor: pointer;
-    padding: 0;
+#mandalo-address-modal .mandalo-modal-close {
+    width: 40px !important;
+    height: 40px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: var(--mdlo-ink) !important;
+    font-size: 20px;
     line-height: 1;
-}
-
-.mandalo-modal-close:hover {
-    color: #374151;
-}
-
-.mandalo-modal-body {
-    padding: 1.5rem;
-}
-
-/* Address List */
-.mandalo-address-list {
-    margin-bottom: 1rem;
-}
-
-.mandalo-address-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-    margin-bottom: 0.75rem;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
-}
-
-.mandalo-address-item:hover {
-    background: #f3f4f6;
-    border-color: #d1d5db;
-}
-
-.mandalo-address-item.is-default {
-    border-color: #f59e0b;
-    background: #fffbeb;
-}
-
-.mandalo-address-icon {
-    width: 40px;
-    height: 40px;
-    background: #e5e7eb;
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+}
+
+#mandalo-address-modal .mandalo-modal-body {
+    padding: 14px;
+}
+
+#mandalo-address-modal .mandalo-address-list {
+    margin-bottom: 12px;
+}
+
+#mandalo-address-modal .mandalo-address-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: box-shadow .15s ease;
+}
+
+#mandalo-address-modal .mandalo-address-item:hover,
+#mandalo-address-modal .mandalo-address-item.is-default {
+    box-shadow: var(--mdlo-shadow-sm);
+}
+
+#mandalo-address-modal .mandalo-address-icon {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
     flex-shrink: 0;
 }
 
-.mandalo-address-item.is-default .mandalo-address-icon {
-    background: #fef3c7;
-}
-
-.mandalo-address-info {
+#mandalo-address-modal .mandalo-address-info {
     flex: 1;
     min-width: 0;
 }
 
-.mandalo-address-title {
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 0.25rem;
+#mandalo-address-modal .mandalo-address-title {
+    font-weight: 700;
+    color: var(--mdlo-ink);
+    font-size: 14px;
+    margin: 0 0 4px;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
-.mandalo-address-title .default-badge {
-    font-size: 0.65rem;
-    background: #f59e0b;
-    color: #fff;
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
+#mandalo-address-modal .mandalo-address-title .default-badge {
+    border: 2px solid var(--mdlo-ink);
+    background: var(--mdlo-yellow-strong);
+    color: var(--mdlo-ink);
+    font-weight: 700;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 0;
+}
+
+#mandalo-address-modal .mandalo-address-text {
+    font-size: 12px;
+    color: var(--mdlo-muted);
     font-weight: 500;
-}
-
-.mandalo-address-text {
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
+    margin: 0 0 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.mandalo-address-contact {
-    font-size: 0.8rem;
-    color: #9ca3af;
+#mandalo-address-modal .mandalo-address-contact {
+    font-size: 12px;
+    color: var(--mdlo-muted);
+    font-weight: 500;
 }
 
-.mandalo-address-actions {
+#mandalo-address-modal .mandalo-address-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
-.mandalo-address-action {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 6px;
+#mandalo-address-modal .mandalo-address-action {
+    width: 36px !important;
+    height: 36px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
     cursor: pointer;
-    font-size: 0.9rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    font-size: 14px;
 }
 
-.mandalo-address-action.edit {
-    background: #eff6ff;
-    color: #3b82f6;
+/* Address form inside modal */
+#mandalo-address-modal .mandalo-address-form {
+    padding: 14px;
+    border-top: 2px solid var(--mdlo-ink);
 }
 
-.mandalo-address-action.edit:hover {
-    background: #dbeafe;
+#mandalo-address-modal .mandalo-address-form h4 {
+    margin: 0 0 12px;
+    font-family: var(--mdlo-font-head);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mdlo-ink);
 }
 
-.mandalo-address-action.delete {
-    background: #fef2f2;
-    color: #dc2626;
-}
-
-.mandalo-address-action.delete:hover {
-    background: #fee2e2;
-}
-
-.mandalo-address-action.default {
-    background: #fefce8;
-    color: #ca8a04;
-}
-
-.mandalo-address-action.default:hover {
-    background: #fef9c3;
-}
-
-/* Address Form */
-.mandalo-address-form {
-    padding: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.mandalo-address-form h4 {
-    margin: 0 0 1rem;
-    font-size: 1.1rem;
-    color: #1a1a1a;
-}
-
-.mandalo-form-row {
-    margin-bottom: 1rem;
+#mandalo-address-modal .mandalo-form-row {
+    margin-bottom: 12px;
     position: relative;
 }
 
-.mandalo-form-row label {
+#mandalo-address-modal .mandalo-form-row label {
     display: block;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 0.4rem;
+    font-size: 14px;
+    margin-bottom: 6px;
 }
 
-.mandalo-form-row-2col {
+#mandalo-address-modal .mandalo-form-row-2col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 12px;
 }
 
-.mandalo-form-actions {
+#mandalo-address-modal .mandalo-form-actions {
     display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+    gap: 12px;
+    margin-top: 16px;
 }
 
-.mandalo-form-actions .mandalo-btn {
+#mandalo-address-modal .mandalo-form-actions .mandalo-btn {
     flex: 1;
 }
 
-/* Empty state */
-.mandalo-empty-addresses {
+#mandalo-address-modal .mandalo-empty-addresses {
     text-align: center;
-    padding: 2rem 1rem;
-    color: #9ca3af;
+    padding: 24px 12px;
+    color: var(--mdlo-muted);
+    font-weight: 500;
 }
 
-.mandalo-empty-addresses .empty-icon {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
+#mandalo-address-modal .mandalo-empty-addresses .empty-icon {
+    font-size: 40px;
+    margin-bottom: 8px;
 }
 
 .mandalo-loading-text {
     text-align: center;
-    color: #9ca3af;
-    padding: 1rem;
+    color: var(--mdlo-muted);
+    font-weight: 500;
+    padding: 12px;
 }
 
-/* =====================================================
-   FULLSCREEN MAP MODAL
-   ===================================================== */
-.mandalo-fullscreen-modal {
+/* ── Fullscreen map modal ──────────────────────────────────────────────── */
+#mandalo-fullscreen-map-modal.mandalo-fullscreen-modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: #fff;
     z-index: 999999;
     display: flex;
     flex-direction: column;
+    font-family: var(--mdlo-font-body);
 }
 
-.mandalo-fullscreen-header {
+.mandalo-fullscreen-modal .mandalo-fullscreen-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    gap: 12px;
+    padding: 12px;
+    background: var(--mdlo-blue);
+    border-bottom: 2px solid var(--mdlo-ink);
+    box-shadow: none;
 }
 
-.mandalo-fullscreen-back {
-    width: 44px;
-    height: 44px;
-    border: none;
-    background: #f3f4f6;
-    border-radius: 12px;
+.mandalo-fullscreen-modal .mandalo-fullscreen-back {
+    width: 44px !important;
+    height: 44px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 2px solid var(--mdlo-ink) !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    color: var(--mdlo-ink) !important;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #374151;
-    transition: all 0.2s;
+    flex-shrink: 0;
 }
 
-.mandalo-fullscreen-back:hover {
-    background: #e5e7eb;
+.mandalo-fullscreen-modal .mandalo-fullscreen-back svg {
+    display: block;
+    width: 22px !important;
+    height: 22px !important;
+    max-width: none;
+    stroke: currentColor;
+    fill: none;
 }
 
-.mandalo-fullscreen-title {
+.mandalo-fullscreen-modal .mandalo-fullscreen-title {
     flex: 1;
+    min-width: 0;
 }
 
-.mandalo-fullscreen-title span {
+.mandalo-fullscreen-modal .mandalo-fullscreen-title span {
     display: block;
-    font-size: 1.1rem;
+    font-family: var(--mdlo-font-head);
+    font-size: 15px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--mdlo-yellow-strong);
 }
 
-.mandalo-fullscreen-title small {
+.mandalo-fullscreen-modal .mandalo-fullscreen-title small {
     display: block;
-    font-size: 0.8rem;
-    color: #6b7280;
+    font-size: 12px;
+    font-weight: 400;
+    color: #fff;
+    opacity: .95;
     margin-top: 2px;
 }
 
 .mandalo-fullscreen-map-container {
     flex: 1;
     position: relative;
+    overflow: hidden;
 }
 
 .mandalo-fullscreen-map-container .leaflet-container,
-.mandalo-fullscreen-map-container #mandalo-fullscreen-map {
+#mandalo-fullscreen-map {
     width: 100%;
     height: 100%;
 }
 
-.mandalo-fullscreen-footer {
-    padding: 1rem;
-    background: #fff;
-    border-top: 1px solid #e5e7eb;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+.mandalo-fullscreen-modal .mandalo-fullscreen-footer {
+    padding: 12px;
+    background: var(--mdlo-bg);
+    border-top: 2px solid var(--mdlo-ink);
+    box-shadow: none;
 }
 
-.mandalo-selected-address {
+.mandalo-fullscreen-modal .mandalo-selected-address {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.875rem;
-    background: #f9fafb;
-    border-radius: 10px;
-    margin-bottom: 1rem;
+    gap: 10px;
+    padding: 12px;
+    background: #fff;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
+    box-shadow: var(--mdlo-shadow-sm);
+    margin-bottom: 14px;
 }
 
-.mandalo-selected-address .mandalo-address-pin {
-    font-size: 1.25rem;
+.mandalo-fullscreen-modal .mandalo-selected-address .mandalo-address-pin {
+    font-size: 16px;
     line-height: 1;
 }
 
-.mandalo-selected-address .mandalo-address-text {
+.mandalo-fullscreen-modal .mandalo-selected-address .mandalo-address-text {
     flex: 1;
-    font-size: 0.95rem;
-    color: #374151;
-    line-height: 1.4;
+    font-size: 14px;
+    color: var(--mdlo-ink);
+    font-weight: 600;
+    line-height: 1.3;
 }
 
 .mandalo-btn-block {
     width: 100%;
-    padding: 1rem;
-    font-size: 1rem;
 }
 
-/* Map marker styles */
-.mandalo-draggable-marker {
-    cursor: grab;
+/* ── Map markers (Leaflet fallback + Google Maps) ──────────────────────── */
+.mandalo-marker-origin,
+.mandalo-marker-dest {
+    background: transparent !important;
+    border: none !important;
 }
 
-.mandalo-draggable-marker:active {
-    cursor: grabbing;
-}
+.mandalo-draggable-marker { cursor: grab; }
+.mandalo-draggable-marker:active { cursor: grabbing; }
 
 .mandalo-marker-pulse {
     position: absolute;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(245, 158, 11, 0.3);
+    background: rgba(250, 204, 21, .35);
     animation: marker-pulse 2s ease-out infinite;
     pointer-events: none;
 }
 
 @keyframes marker-pulse {
-    0% {
-        transform: scale(0.5);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(2);
-        opacity: 0;
-    }
-}
-
-/* Search box in fullscreen map */
-.mandalo-map-search {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    right: 1rem;
-    z-index: 1000;
-}
-
-.mandalo-map-search-input {
-    width: 100%;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    background: #fff;
-}
-
-.mandalo-map-search-input:focus {
-    outline: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.mandalo-map-search-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-}
-
-/* Google Maps container must fill its parent */
-#mandalo-map-container,
-#mandalo-fullscreen-map {
-    width: 100%;
-    height: 100%;
-}
-
-/* Google Maps — hide default satellite/terms clutter on small maps */
-#mandalo-map-container .gmnoprint a,
-#mandalo-map-container .gmnoprint span {
-    display: none;
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
 }
 
 /* Google Maps custom marker labels */
@@ -1343,76 +1157,132 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
 }
 
 .mandalo-gm-label.origin {
     background: #22c55e;
 }
 
-/* Draggable picker marker — amber teardrop */
+/* Draggable picker marker — brand yellow teardrop */
 .mandalo-gm-picker {
     width: 40px;
     height: 40px;
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
-    background: #f59e0b;
-    border: 4px solid #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    background: var(--mdlo-yellow);
+    border: 3px solid var(--mdlo-ink);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .3);
     cursor: grab;
     position: relative;
 }
 
-.mandalo-gm-picker:active {
-    cursor: grabbing;
-}
+.mandalo-gm-picker:active { cursor: grabbing; }
 
 .mandalo-gm-picker-pulse {
     position: absolute;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(245, 158, 11, 0.3);
+    background: rgba(250, 204, 21, .35);
     animation: marker-pulse 2s ease-out infinite;
     pointer-events: none;
-    top: -4px;
-    left: -4px;
+    top: -3px;
+    left: -3px;
 }
 
-/* Current location button */
+/* Current location button (div injected as a Google Maps control) */
 .mandalo-location-btn {
-    position: absolute;
-    bottom: 120px;
-    right: 1rem;
     width: 48px;
     height: 48px;
-    border: none;
+    margin: 0 12px 120px 0;
+    border: 2px solid var(--mdlo-ink);
+    border-radius: 0;
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: var(--mdlo-shadow-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #374151;
+    color: var(--mdlo-ink);
     z-index: 1000;
-    transition: all 0.2s;
+    transition: background .15s ease;
 }
 
 .mandalo-location-btn:hover {
-    background: #f3f4f6;
+    background: var(--mdlo-bg);
+}
+
+.mandalo-location-btn svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
 }
 
 .mandalo-location-btn.locating {
-    color: #f59e0b;
+    color: var(--mdlo-blue);
 }
 
 .mandalo-location-btn.locating svg {
-    animation: spin 1s linear infinite;
+    animation: mandalo-spin 1s linear infinite;
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    #mandalo-quote-container .mandalo-quote-header h2 {
+        font-size: 22px;
+    }
+
+    #mandalo-quote-container .mandalo-quote-subtitle {
+        font-size: 15px;
+    }
+
+    #mandalo-quote-container .mandalo-quote-form {
+        padding: 14px 12px;
+    }
+
+    #mandalo-quote-container .mandalo-type-content {
+        padding: 12px 6px;
+        min-height: 88px;
+    }
+
+    #mandalo-quote-container .mandalo-address-row .mandalo-address-input,
+    #mandalo-quote-container .mandalo-destination-row .mandalo-address-input {
+        gap: 8px;
+    }
+
+    #mandalo-quote-container .mandalo-number-input {
+        width: 70px !important;
+        min-width: 70px;
+        padding: 12px 4px !important;
+    }
+
+    #mandalo-quote-container .mandalo-map-btn {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+    #mandalo-quote-container .mandalo-datetime-row,
+    #mandalo-quote-container .mandalo-contact-row {
+        grid-template-columns: 1fr;
+    }
+
+    #mandalo-quote-container .mandalo-dimensions-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    #mandalo-quote-container .mandalo-add-btn {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    #mandalo-quote-container .mandalo-result-actions {
+        grid-template-columns: 1fr;
+    }
+
+    #mandalo-address-modal .mandalo-form-row-2col {
+        grid-template-columns: 1fr;
+    }
 }

@@ -100,8 +100,9 @@ class Mandalo_Quote_System {
 
         ob_start();
 
-        // Output CSS link
-        $css_url = MANDALO_SHIPPING_URL . 'assets/css/quote-form.css?ver=' . MANDALO_SHIPPING_VERSION;
+        // Output CSS link (filemtime version = automatic CDN cache-bust on deploy)
+        $css_ver = @filemtime(MANDALO_SHIPPING_PATH . 'assets/css/quote-form.css') ?: MANDALO_SHIPPING_VERSION;
+        $css_url = MANDALO_SHIPPING_URL . 'assets/css/quote-form.css?ver=' . $css_ver;
         echo '<link data-no-optimize="1" rel="stylesheet" href="' . esc_url($css_url) . '">';
         if (!$use_google_maps) {
             // Leaflet CSS fallback (only when no Google Maps key configured)
@@ -271,7 +272,7 @@ class Mandalo_Quote_System {
 
                 <div class="mandalo-form-section mandalo-map-section" style="display: none;">
                     <label class="mandalo-section-label">Confirma las ubicaciones</label>
-                    <div id="mandalo-map-container" style="height: 250px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                    <div id="mandalo-map-container" style="height: 250px;"></div>
                     <p class="mandalo-help-text">Verifica que los puntos en el mapa sean correctos.</p>
                 </div>
 
@@ -420,7 +421,8 @@ class Mandalo_Quote_System {
                 'success' => 'Servicio agregado',
             ],
         ];
-        $js_url = MANDALO_SHIPPING_URL . 'assets/js/quote-form.js?ver=' . MANDALO_SHIPPING_VERSION;
+        $js_ver = @filemtime(MANDALO_SHIPPING_PATH . 'assets/js/quote-form.js') ?: MANDALO_SHIPPING_VERSION;
+        $js_url = MANDALO_SHIPPING_URL . 'assets/js/quote-form.js?ver=' . $js_ver;
         ?>
         <script data-no-optimize="1">var MandaloQuote = <?php echo json_encode($js_config); ?>;</script>
         <?php if ($use_google_maps): ?>
